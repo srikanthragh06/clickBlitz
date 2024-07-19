@@ -10,7 +10,7 @@ namespace game
 
         // game logic
         this->points = 0;
-        this->enemySpawnTimerMax = 1000.f;
+        this->enemySpawnTimerMax = 50.f;
         this->enemySpawnTimer = this->enemySpawnTimerMax;
         this->maxEnemies = 10;
     }
@@ -70,6 +70,7 @@ namespace game
     void Game::updateMousePos()
     {
         this->mousePosWindow = sf::Mouse::getPosition(*this->window);
+        this->mousePosView = this->window->mapPixelToCoords(this->mousePosWindow);
     }
 
     void Game::updateEvents()
@@ -107,14 +108,31 @@ namespace game
             }
             else
             {
-                this->enemySpawnTimer += 30.f;
+                this->enemySpawnTimer += 1.f;
             }
         }
 
-        // Move the enemies
-        for (auto &enemy : this->enemies)
+        // Enemy movement and deletion
+        for (int i = 0; i < this->enemies.size(); i++)
         {
-            enemy.move(0.f, 5.f);
+
+            // move enemy
+            this->enemies[i].move(0.f, 5.f);
+
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                if (this->enemies[i].getGlobalBounds().contains(this->mousePosView))
+                {
+                    this->enemies.erase(this->enemies.begin() + i);
+                    this->points += 10.f;
+                    std::cout << this->points << std::endl;
+                }
+            }
+
+            else if (this->enemies[i].getPosition().y > this->window->getSize().y)
+            {
+                this->enemies.erase(this->enemies.begin() + i);
+            }
         }
     }
 

@@ -13,6 +13,7 @@ namespace game
         sf::Event windowEvent;
 
         sf::Vector2i mousePosWindow;
+        sf::Vector2f mousePosView;
 
         sf::CircleShape enemy;
         std::vector<sf::CircleShape> enemies;
