@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 #include <SFML/Graphics.hpp>
 
@@ -11,16 +12,33 @@ namespace game
         sf::VideoMode videoMode;
         sf::Event windowEvent;
 
-        sf::RectangleShape enemy;
+        sf::Vector2i mousePosWindow;
+
+        sf::CircleShape enemy;
+        std::vector<sf::CircleShape> enemies;
+
+        // game logic members
+        int points;
+        float enemySpawnTimer;
+        float enemySpawnTimerMax;
+        unsigned int maxEnemies;
 
     private:
         void initVariables();
         void initWindow();
         void initEnemies();
 
-        void handleEvents();
         void update();
+
+        void updateEvents();
+        void updateMousePos();
+        void updateEnemies();
+
         void render();
+
+        void renderEnemies();
+
+        void spawnEnemy();
 
     public:
         Game();

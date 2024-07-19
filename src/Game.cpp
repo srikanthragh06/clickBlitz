@@ -1,4 +1,4 @@
-#include <iostream>
+#include <ctime>
 
 #include "Game.h"
 
@@ -7,6 +7,12 @@ namespace game
     void Game::initVariables()
     {
         this->window = nullptr;
+
+        // game logic
+        this->points = 0;
+        this->enemySpawnTimerMax = 1000.f;
+        this->enemySpawnTimer = this->enemySpawnTimerMax;
+        this->maxEnemies = 10;
     }
     void Game::initWindow()
     {
@@ -21,7 +27,7 @@ namespace game
     void Game::initEnemies()
     {
         this->enemy.setPosition(10.f, 10.f);
-        this->enemy.setSize(sf::Vector2f(100.f, 100.f));
+        this->enemy.setRadius(50.f);
         this->enemy.setScale(0.5f, 0.5f);
         this->enemy.setFillColor(sf::Color::Magenta);
         this->enemy.setOutlineColor(sf::Color::Red);
@@ -56,22 +62,17 @@ namespace game
 
     void Game::update()
     {
-        this->handleEvents();
-
-        std::cout << "Mouse position: " << sf::Mouse::getPosition(*this->window).x << ", " << sf::Mouse::getPosition(*this->window).y << std::endl;
+        this->updateEvents();
+        this->updateMousePos();
+        this->updateEnemies();
     }
 
-    void Game::render()
+    void Game::updateMousePos()
     {
-
-        this->window->clear();
-
-        this->window->draw(this->enemy);
-
-        this->window->display();
+        this->mousePosWindow = sf::Mouse::getPosition(*this->window);
     }
 
-    void Game::handleEvents()
+    void Game::updateEvents()
     {
         while (this->window->pollEvent(this->windowEvent))
         {
@@ -92,6 +93,58 @@ namespace game
                 }
             }
         }
+    }
+    void Game::updateEnemies()
+    {
+        // Enemy generation
+        if (this->enemies.size() < this->maxEnemies)
+        {
+
+            if (this->enemySpawnTimer >= this->enemySpawnTimerMax)
+            {
+                this->spawnEnemy();
+                this->enemySpawnTimer = 0.f;
+            }
+            else
+            {
+                this->enemySpawnTimer += 30.f;
+            }
+        }
+
+        // Move the enemies
+        for (auto &enemy : this->enemies)
+        {
+            enemy.move(0.f, 5.f);
+        }
+    }
+
+    void Game::render()
+    {
+
+        this->window->clear();
+
+        this->renderEnemies();
+
+        this->window->display();
+    }
+
+    void Game::renderEnemies()
+    {
+        for (auto &e : this->enemies)
+        {
+            this->window->draw(e);
+        }
+    }
+
+    void Game::spawnEnemy()
+    {
+        this->enemy.setPosition(
+            static_cast<float>(rand() % static_cast<int>(this->window->getSize().x - this->enemy.getRadius() * 2)),
+            -5);
+
+        this->enemy.setFillColor(sf::Color::White);
+
+        this->enemies.push_back(this->enemy);
     }
 
 }
